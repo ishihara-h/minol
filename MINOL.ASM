@@ -1,11 +1,16 @@
-MEMEND	EQU	2FFFH
-OS	EQU	8800H
-; 
-RESET	EQU	0
-CR	EQU	13
+;Original MINOL(CPMUG017)
 ;
-;-----------------
+;Modified the source program to run on CP/M
+;Hiroshi Ishihara 2021/3/7
+;
+PROGST	EQU	0800H
+MEMEND	EQU	2FFFH
+;
+;--CP/M interface---------------
+OS	EQU	0
 BDOS	EQU	5
+LF	EQU	10
+CR	EQU	13
 ORIGIN	EQU	100H
 ;
 	ORG	ORIGIN
@@ -24,7 +29,7 @@ CIN:	PUSH	H
 ;
 CRLF:	MVI	A,CR
 	CALL	COUT
-	MVI	A,0AH
+	MVI	A,LF
 COUT:	PUSH	H
 	PUSH	D
 	PUSH	B
@@ -48,7 +53,7 @@ SENSE:PUSH	H
 	POP	D
 	POP	H
 	RET
-;----------------
+;--CP/M interface---------------
 ; 
 MINOL:	MVI	A,']'	;OUTPUT PROMPT
 	CALL	COUT
@@ -894,7 +899,7 @@ EXPR:	DS	31	;EXPRESSION BUFFER
 TXT:	DS	72	;LINE BUFFER (INPUT TEXT)
 TXTEND: DS	1
 ; 
-	ORG	0800H
+	ORG	PROGST
 PROG:	DB	CR,0FFH
 ; 
 	END	MINOL
