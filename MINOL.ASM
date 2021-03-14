@@ -3,7 +3,7 @@
 ;Modified the source program to run on CP/M
 ;Hiroshi Ishihara 2021/3/7
 ;
-PROGST	EQU	0900H
+PROGST	EQU	0A00H
 MEMEND	EQU	2FFFH
 ;
 ;--CP/M interface---------------
@@ -43,7 +43,7 @@ COUT:	PUSH	H
 	POP	H
 	RET
 ;
-SENSE:PUSH	H
+SENSE:	PUSH	H
 	PUSH	D
 	PUSH	B
 	MVI	C,6
@@ -130,16 +130,16 @@ LOAD:	CALL	SETPARA
 	PUSH	D
 	PUSH	B
 	LXI	D,FCB
-	MVI	C,OPENF	;open file
+	MVI	C,OPENF		;open file
 	CALL	BDOS
-	CPI	0FFH
-	JZ	ERR2	;need to fix
+	INR	A
+	JZ	ERR3
 	LXI	D,PROGST
 READ:	MVI	C,SETDMA	;set DMA
 	CALL	BDOS
 	PUSH	D
 	LXI	D,FCB
-	MVI	C,READF	;read sequential
+	MVI	C,READF		;read sequential
 	CALL	BDOS
 	POP	D
 	ANA	A
@@ -164,27 +164,26 @@ SAVE:	INX	H
 	PUSH	D
 	PUSH	B
 	LXI	D,FCB
-SAVE0:	MVI	C,OPENF	;open file
+SAVE0:	MVI	C,OPENF		;open file
 	CALL	BDOS
-	CPI	0FFH
+	INR	A
 	JNZ	SAVE1
 	MVI	C,MAKEF
 	CALL	BDOS
-	CPI	0FFH
-	JZ	ERR2	;need to fix
+	INR	A
+	JZ	ERR3
 SAVE1:	LXI	D,PROGST
 	PUSH	D
 	LXI	B,0
 SAVE2:	LDAX	D
 	INX	D
 	INX	B
-	CPI	0FFH
+	INR	A
 	JNZ	SAVE2
-	INR	C
-	DCR	C
+	CMP	C
 	JZ	SAVE3
 	INR	B
-	MVI	A,01AH	;EOF
+	MVI	A,01AH		;EOF
 	STAX	D
 SAVE3:	POP	D
 WRITE:	PUSH	B
@@ -197,7 +196,7 @@ WRITE:	PUSH	B
 	POP	D
 	POP	B
 	ANA	A
-	JNZ	ERR2	;error
+	JNZ	ERR3
 	DCR	B
 	JZ	WRITE2
 	PUSH	H
